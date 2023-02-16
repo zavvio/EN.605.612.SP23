@@ -432,10 +432,13 @@ int do_getrusage()
  *===========================================================================*/
 int do_homework()
 {
-	int res = 0;
+    int res = 0;
+    message m;
 
-    printf("do_homework system call triggered.\n");
-    printf("%s:%d:%s - Custom System Call\n", __FILE__, __LINE__, __FUNCTION__);
-
-	return res;
+    printf("%s:%d:%s - Custom System Call do_homework() triggered \n", __FILE__, __LINE__, __FUNCTION__);
+    printf("--> from syscall do_homework trigger _kernel_call(SYS_HOMEWORK1)\n");
+    res = _kernel_call(SYS_HOMEWORK1, &m);
+    printf("--> from syscall do_homework trigger sys_homework1()\n");
+    res = sys_homework1(0, 0);
+    return res;
 }
