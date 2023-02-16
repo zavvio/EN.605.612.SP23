@@ -426,3 +426,16 @@ int do_getrusage()
 	return sys_datacopy(SELF, (vir_bytes)&r_usage, who_e,
 		m_in.m_lc_pm_rusage.addr, (vir_bytes) sizeof(r_usage));
 }
+
+/*===========================================================================*
+ *              do_homework                                                  *
+ *===========================================================================*/
+int do_homework()
+{
+	int res = 0;
+
+    printf("do_homework system call triggered.\n");
+    printf("%s:%d:%s - Custom System Call\n", __FILE__, __LINE__, __FUNCTION__);
+
+	return res;
+}
