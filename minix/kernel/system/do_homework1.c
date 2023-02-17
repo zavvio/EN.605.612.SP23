@@ -12,6 +12,6 @@
  *===========================================================================*/
 int do_homework1(struct proc * caller, message * m_ptr)
 {
-    printf("%s:%d:%s Kernel call do_homework1 triggered.\n", __FILE__, __LINE__, __FUNCTION__);
+    printf("%s:%d:%s - kernel call\n", __FILE__, __LINE__, __FUNCTION__);
     return(OK); 
 }

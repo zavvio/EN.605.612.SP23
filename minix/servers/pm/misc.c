@@ -435,10 +435,10 @@ int do_homework()
     int res = 0;
     message m;
 
-    printf("%s:%d:%s - Custom System Call do_homework() triggered \n", __FILE__, __LINE__, __FUNCTION__);
-    printf("--> from syscall do_homework trigger _kernel_call(SYS_HOMEWORK1)\n");
+    printf("%s:%d:%s - system call in PM\n", __FILE__, __LINE__, __FUNCTION__);
+    printf("--> from PM syscall trigger _kernel_call(SYS_HOMEWORK1)\n");
     res = _kernel_call(SYS_HOMEWORK1, &m);
-    printf("--> from syscall do_homework trigger sys_homework1()\n");
+    printf("--> from PM syscall trigger sys_homework1()\n");
     res = sys_homework1(0, 0);
     return res;
 }
