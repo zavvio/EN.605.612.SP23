@@ -50,6 +50,7 @@ int sys_runctl(endpoint_t proc_ep, int action, int flags);
 
 int sys_update(endpoint_t src_ep, endpoint_t dst_ep);
 int sys_statectl(int request);
+int sys_homework1(unsigned flags, endpoint_t proc_ep);
 int sys_privctl(endpoint_t proc_ep, int req, void *p);
 int sys_privquery_mem(endpoint_t proc_ep, phys_bytes physstart,
 	phys_bytes physlen);

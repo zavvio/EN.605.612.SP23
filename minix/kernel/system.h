@@ -32,6 +32,8 @@
 
 #include "kernel/kernel.h"
 
+int do_homework1(struct proc * caller, message *m_ptr);
+
 int do_exec(struct proc * caller, message *m_ptr);
 #if ! USE_EXEC
 #define do_exec NULL

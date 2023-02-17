@@ -426,3 +426,19 @@ int do_getrusage()
 	return sys_datacopy(SELF, (vir_bytes)&r_usage, who_e,
 		m_in.m_lc_pm_rusage.addr, (vir_bytes) sizeof(r_usage));
 }
+
+/*===========================================================================*
+ *              do_homework                                                  *
+ *===========================================================================*/
+int do_homework()
+{
+    int res = 0;
+    message m;
+
+    printf("%s:%d:%s - system call in PM\n", __FILE__, __LINE__, __FUNCTION__);
+    printf("--> from PM syscall trigger _kernel_call(SYS_HOMEWORK1)\n");
+    res = _kernel_call(SYS_HOMEWORK1, &m);
+    printf("--> from PM syscall trigger sys_homework1()\n");
+    res = sys_homework1(0, 0);
+    return res;
+}
