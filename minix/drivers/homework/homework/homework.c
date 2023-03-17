@@ -12,6 +12,10 @@ static int homework_open(devminor_t minor, int access, endpoint_t user_endpt);
 static int homework_close(devminor_t minor);
 static ssize_t homework_read(devminor_t minor, u64_t position, endpoint_t endpt,
     cp_grant_id_t grant, size_t size, int flags, cdev_id_t id);
+static ssize_t homework_write(devminor_t minor, u64_t position, endpoint_t endpt,
+	cp_grant_id_t grant, size_t size, int flags, cdev_id_t id);
+static int homework_ioctl(devminor_t minor, unsigned long request, endpoint_t endpt,
+	cp_grant_id_t grant, int flags, endpoint_t user_endpt, cdev_id_t id);
 
 /* SEF functions and variables. */
 static void sef_local_startup(void);
@@ -25,7 +29,12 @@ static struct chardriver homework_tab =
     .cdr_open	= homework_open,
     .cdr_close	= homework_close,
     .cdr_read	= homework_read,
+    .cdr_write  = homework_write,
+    .cdr_ioctl  = homework_ioctl,
 };
+
+#define MAX_STRING_BUFFER_SIZE 256
+static char string_buffer[MAX_STRING_BUFFER_SIZE] = "Initial homework driver buffer content";
 
 /** State variable to count the number of times the device has been opened.
  * Note that this is not the regular type of open counter: it never decreases.
@@ -52,12 +61,14 @@ static ssize_t homework_read(devminor_t UNUSED(minor), u64_t position,
     u64_t dev_size;
     char *ptr;
     int ret;
-    char *buf = HOMEWORK_MESSAGE;
+    //char *buf = HOMEWORK_MESSAGE;
+    char *buf = string_buffer;
 
     printf("homework_read()\n");
 
     /* This is the total size of our device. */
-    dev_size = (u64_t) strlen(buf);
+    //dev_size = (u64_t) strlen(buf);
+    dev_size = (u64_t) MAX_STRING_BUFFER_SIZE;
 
     /* Check for EOF, and possibly limit the read size. */
     if (position >= dev_size) return 0;		/* EOF */
@@ -71,6 +82,26 @@ static ssize_t homework_read(devminor_t UNUSED(minor), u64_t position,
 
     /* Return the number of bytes read. */
     return size;
+}
+
+static ssize_t homework_write(devminor_t minor, u64_t position, endpoint_t endpt,
+	cp_grant_id_t grant, size_t size, int flags, cdev_id_t id)
+{
+    int ret;
+    printf("homework_write()\n");
+    if (size > MAX_STRING_BUFFER_SIZE)
+        size = MAX_STRING_BUFFER_SIZE;
+    else if (size < 0)
+        size = 0;
+    if ((ret = sys_safecopyfrom(endpt, grant, 0, (vir_bytes) string_buffer, size)) != OK)
+        return ret;
+    return size;
+}
+
+static int homework_ioctl(devminor_t minor, unsigned long request, endpoint_t endpt,
+	cp_grant_id_t grant, int flags, endpoint_t user_endpt, cdev_id_t id)
+{
+    return OK;
 }
 
 static int sef_cb_lu_state_save(int UNUSED(state)) {
