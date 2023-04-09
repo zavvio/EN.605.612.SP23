@@ -6,7 +6,7 @@
 #include <sys/ioc_homework.h>
 #include "homework.h"
 
-#define PROJECT2_ASSIGNMENT
+#define PROJECT3_ASSIGNMENT
 
 /*
  * Function prototypes for the homework driver.
@@ -41,7 +41,7 @@ static struct chardriver homework_tab =
 static char string_buffer[MAX_STRING_BUFFER_SIZE] = "Initial homework driver buffer content\n";
 #endif
 
-#ifdef PROJECT2_ASSIGNMENT
+#ifdef PROJECT3_ASSIGNMENT
 #define MAX_NUM_OF_SLOTS 5
 static int32_t slots[MAX_NUM_OF_SLOTS] = {0};
 static uint8_t slots_status[MAX_NUM_OF_SLOTS] = {FALSE};
@@ -107,7 +107,7 @@ static ssize_t homework_read(devminor_t UNUSED(minor), u64_t position,
     return size;
 #endif
 
-#ifdef PROJECT2_ASSIGNMENT
+#ifdef PROJECT3_ASSIGNMENT
     int ret;
     if (size < 4) // lower-bounded by 4
     {
@@ -140,7 +140,7 @@ static ssize_t homework_write(devminor_t UNUSED(minor), u64_t UNUSED(position), 
         return ret;
 #endif
 
-#ifdef PROJECT2_ASSIGNMENT
+#ifdef PROJECT3_ASSIGNMENT
     int ret;
     if (size < 4) // lower-bounded by 4
     {
@@ -164,7 +164,7 @@ static ssize_t homework_write(devminor_t UNUSED(minor), u64_t UNUSED(position), 
 static int homework_ioctl(devminor_t UNUSED(minor), unsigned long request, endpoint_t endpt,
 	cp_grant_id_t grant, int UNUSED(flags), endpoint_t UNUSED(user_endpt), cdev_id_t UNUSED(id))
 {
-#ifdef PROJECT2_ASSIGNMENT
+#ifdef PROJECT3_ASSIGNMENT
     uint32_t argument;
     int ret;
 
@@ -213,7 +213,7 @@ static int sef_cb_lu_state_save(int UNUSED(state)) {
     ds_publish_u32("open_counter", open_counter, DSF_OVERWRITE);
     ds_publish_u32("initialized", initialized, DSF_OVERWRITE);
 
-#ifdef PROJECT2_ASSIGNMENT
+#ifdef PROJECT3_ASSIGNMENT
     ds_publish_u32("i_slot", i_slot, DSF_OVERWRITE);
     ds_publish_mem("slots", slots, sizeof(slots), DSF_OVERWRITE);
     ds_publish_mem("slots_status", slots_status, sizeof(slots_status), DSF_OVERWRITE);
@@ -232,7 +232,7 @@ static int lu_state_restore() {
     ds_retrieve_u32("initialized", &initialized);
     ds_delete_u32("initialized");
 
-#ifdef PROJECT2_ASSIGNMENT
+#ifdef PROJECT3_ASSIGNMENT
     ds_retrieve_u32("i_slot", &i_slot);
     ds_delete_u32("i_slot");
     size = sizeof(slots);
