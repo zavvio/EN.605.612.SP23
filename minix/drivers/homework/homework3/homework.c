@@ -60,6 +60,8 @@ static int homework_open(devminor_t UNUSED(minor), int UNUSED(access),
         i_slot = 0;
         memset(slots, 0, sizeof(slots));
         memset(slots_status, 0, sizeof(slots_status));
+        memset(blocked_read_counts, 0, sizeof(blocked_read_counts));
+        memset(blocked_reads, 0, sizeof(blocked_reads));
         initialized = 1;
         printf("%s() - Initialized.\n", __FUNCTION__);
     }
@@ -271,10 +273,6 @@ static int sef_cb_init(int type, sef_init_info_t *UNUSED(info))
         case SEF_INIT_FRESH:
             initialized = 0;
             printf("\"homework\" driver started freshly.\n");
-            for (i = 0; i < MAX_NUM_OF_SLOTS; i++)
-            {
-                blocked_read_counts[i] = 0;
-            }
         break;
 
         case SEF_INIT_LU:
@@ -286,11 +284,8 @@ static int sef_cb_init(int type, sef_init_info_t *UNUSED(info))
         break;
 
         case SEF_INIT_RESTART:
+            memset(blocked_read_counts, 0, sizeof(blocked_read_counts));
             printf("\"homework\" driver restarted.\n");
-            for (i = 0; i < MAX_NUM_OF_SLOTS; i++)
-            {
-                blocked_read_counts[i] = 0;
-            }
         break;
     }
 
