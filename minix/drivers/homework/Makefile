@@ -1,5 +1,5 @@
 .include <bsd.own.mk>
 
-SUBDIR+=	homework
+SUBDIR+=	homework3
 
 .include <bsd.subdir.mk>
