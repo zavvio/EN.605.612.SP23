@@ -32,7 +32,7 @@ main (int argc, char *argv[])
         perror ("read");
         exit (1);
     }
-    printf ("%s() - value = %d, ret = %d\n", __FUNCTION__, foo, ret);
+    printf ("[pid:%d] %s() - value = %d, ret = %d\n", getpid(), __FUNCTION__, foo, ret);
     close (fd);
     exit (0);
 }

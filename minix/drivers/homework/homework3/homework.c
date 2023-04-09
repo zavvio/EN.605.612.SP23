@@ -6,8 +6,6 @@
 #include <sys/ioc_homework.h>
 #include "homework.h"
 
-#define PROJECT3_ASSIGNMENT
-
 /*
  * Function prototypes for the homework driver.
  */
@@ -36,17 +34,10 @@ static struct chardriver homework_tab =
     .cdr_ioctl  = homework_ioctl,
 };
 
-#ifdef STRING_EXAMPLE
-#define MAX_STRING_BUFFER_SIZE 256
-static char string_buffer[MAX_STRING_BUFFER_SIZE] = "Initial homework driver buffer content\n";
-#endif
-
-#ifdef PROJECT3_ASSIGNMENT
 #define MAX_NUM_OF_SLOTS 5
 static int32_t slots[MAX_NUM_OF_SLOTS] = {0};
 static uint8_t slots_status[MAX_NUM_OF_SLOTS] = {FALSE};
 static uint32_t i_slot = 0;
-#endif
 
 /** State variable to count the number of times the device has been opened.
  * Note that this is not the regular type of open counter: it never decreases.
@@ -54,10 +45,16 @@ static uint32_t i_slot = 0;
 static int open_counter;
 static uint32_t initialized;
 
+// Data structures to keep track of blocked Read requests for invalid slots
+#define MAX_NUM_OF_BLOCKING_CALL 5
+static read_request_t blocked_reads[MAX_NUM_OF_SLOTS][MAX_NUM_OF_BLOCKING_CALL];
+static uint32_t blocked_read_counts[MAX_NUM_OF_SLOTS];
+
 static int homework_open(devminor_t UNUSED(minor), int UNUSED(access),
     endpoint_t UNUSED(user_endpt))
 {
-    printf("%s() - Being accessed by %d process(es).\n", __FUNCTION__, ++open_counter);
+    open_counter++;
+    printf("%s() - Being accessed by %d process(es).\n", __FUNCTION__, open_counter);
     if (!initialized)
     {
         i_slot = 0;
@@ -78,36 +75,8 @@ static int homework_close(devminor_t UNUSED(minor))
 
 static ssize_t homework_read(devminor_t UNUSED(minor), u64_t position,
     endpoint_t endpt, cp_grant_id_t grant, size_t size, int UNUSED(flags),
-    cdev_id_t UNUSED(id))
+    cdev_id_t id)
 {
-#ifdef STRING_EXAMPLE
-    u64_t dev_size;
-    char *ptr;
-    int ret;
-    char *buf = HOMEWORK_MESSAGE;
-    char *buf = string_buffer;
-
-    printf("homework_read()\n");
-
-    /* This is the total size of our device. */
-    dev_size = (u64_t) strlen(buf);
-    dev_size = (u64_t) MAX_STRING_BUFFER_SIZE;
-
-    /* Check for EOF, and possibly limit the read size. */
-    if (position >= dev_size) return 0;		/* EOF */
-    if (position + size > dev_size)
-        size = (size_t)(dev_size - position);	/* limit size */
-
-    /* Copy the requested part to the caller. */
-    ptr = buf + (size_t)position;
-    if ((ret = sys_safecopyto(endpt, grant, 0, (vir_bytes) ptr, size)) != OK)
-        return ret;
-
-    /* Return the number of bytes read. */
-    return size;
-#endif
-
-#ifdef PROJECT3_ASSIGNMENT
     int ret;
     if (size < 4) // lower-bounded by 4
     {
@@ -115,8 +84,22 @@ static ssize_t homework_read(devminor_t UNUSED(minor), u64_t position,
         return EINVAL;
     }
     if (size > 4) size = 4; // upper-bounded by 4
-    if (slots_status[i_slot] == FALSE)
-        printf("%s() - [WARNING] Slot %d is uninitialized.\n", __FUNCTION__, i_slot);
+    if (slots_status[i_slot] == FALSE) // read invalid slot, block process if request queue is not full
+    {
+        if (blocked_read_counts[i_slot] >= MAX_NUM_OF_BLOCKING_CALL)
+        {
+            printf("%s() - [ERROR] Slot %d is uninitialized but unable to block because driver request queue is full.\n", __FUNCTION__, i_slot);
+            return EINVAL;
+        }
+        printf("%s() - [WARNING] Slot %d is uninitialized, blocking (endpt %d, grant %d, id %u).\n", __FUNCTION__, i_slot, endpt, grant, id);
+        blocked_reads[i_slot][blocked_read_counts[i_slot]].caller = endpt;
+        blocked_reads[i_slot][blocked_read_counts[i_slot]].id = id;
+        blocked_reads[i_slot][blocked_read_counts[i_slot]].grant = grant;
+        blocked_reads[i_slot][blocked_read_counts[i_slot]].size = size;
+        blocked_reads[i_slot][blocked_read_counts[i_slot]].slot_index = i_slot;
+        blocked_read_counts[i_slot]++;
+        return EDONTREPLY;
+    }
     if ((ret = sys_safecopyto(endpt, grant, 0, (vir_bytes) &slots[i_slot], size)) != OK)
     {
         printf("%s() - [ERROR] sys_safecopyto failed, ret = %d.\n", __FUNCTION__, ret);
@@ -124,24 +107,12 @@ static ssize_t homework_read(devminor_t UNUSED(minor), u64_t position,
     }
     printf("%s() - Slot %d = %d.\n", __FUNCTION__, i_slot, slots[i_slot]);
     return size;
-#endif
 }
 
 static ssize_t homework_write(devminor_t UNUSED(minor), u64_t UNUSED(position), endpoint_t endpt,
 	cp_grant_id_t grant, size_t size, int UNUSED(flags), cdev_id_t UNUSED(id))
 {
-#ifdef STRING_EXAMPLE
-    int ret;
-    printf("homework_write()\n");
-    memset(string_buffer, 0, MAX_STRING_BUFFER_SIZE);
-    if (size > MAX_STRING_BUFFER_SIZE)
-        size = MAX_STRING_BUFFER_SIZE;
-    if ((ret = sys_safecopyfrom(endpt, grant, 0, (vir_bytes) string_buffer, size)) != OK)
-        return ret;
-#endif
-
-#ifdef PROJECT3_ASSIGNMENT
-    int ret;
+    int ret, i;
     if (size < 4) // lower-bounded by 4
     {
         printf("%s() - [ERROR] Size %d is smaller than 4.\n", __FUNCTION__, size);
@@ -153,18 +124,34 @@ static ssize_t homework_write(devminor_t UNUSED(minor), u64_t UNUSED(position), 
         printf("%s() - [ERROR] sys_safecopyfrom failed, ret = %d.\n", __FUNCTION__, ret);
         return ret;
     }
-    slots_status[i_slot] = TRUE;
     printf("%s() - Wrote %d to slot %d.\n", __FUNCTION__, slots[i_slot], i_slot);
-    if (open_counter > 1)
-        printf("%s() - [WARNING] %d concurrent sessions, please explicitly verify result.\n", __FUNCTION__, open_counter);
+    if (slots_status[i_slot] == FALSE) // previously invalid slot became valid
+    {
+        for (i = 0; i < blocked_read_counts[i_slot]; i++) // iteratively wakes up all processes blocked on the current slot
+        {
+            if ((ret = sys_safecopyto(blocked_reads[i_slot][i].caller, blocked_reads[i_slot][i].grant, 0, (vir_bytes) &slots[i_slot], blocked_reads[i_slot][i].size)) != OK)
+            {
+                printf("%s() - [ERROR] sys_safecopyto failed, ret = %d.\n", __FUNCTION__, ret);
+                //return ret;
+                chardriver_reply_task(blocked_reads[i_slot][i].caller, blocked_reads[i_slot][i].id, ret);
+            }
+            else
+            {
+                chardriver_reply_task(blocked_reads[i_slot][i].caller, blocked_reads[i_slot][i].id, blocked_reads[i_slot][i].size);
+            }
+            printf("%s() - notified caller %d, grant %d, id %u.\n", __FUNCTION__, blocked_reads[i_slot][i].caller, blocked_reads[i_slot][i].grant, blocked_reads[i_slot][i].id);
+        }
+        blocked_read_counts[i_slot] = 0; // reset request queue for current slot
+    }
+    slots_status[i_slot] = TRUE; // mark current slot as valid
+    // if (open_counter > 1)
+    //     printf("%s() - [WARNING] %d concurrent sessions, please explicitly verify result.\n", __FUNCTION__, open_counter);
     return size;
-#endif
 }
 
 static int homework_ioctl(devminor_t UNUSED(minor), unsigned long request, endpoint_t endpt,
 	cp_grant_id_t grant, int UNUSED(flags), endpoint_t UNUSED(user_endpt), cdev_id_t UNUSED(id))
 {
-#ifdef PROJECT3_ASSIGNMENT
     uint32_t argument;
     int ret;
 
@@ -183,15 +170,15 @@ static int homework_ioctl(devminor_t UNUSED(minor), unsigned long request, endpo
             }
             i_slot = argument;
             printf("%s() - Set slot to %d\n", __FUNCTION__, i_slot);
-            if (open_counter > 1)
-                printf("%s() - [WARNING] %d concurrent sessions, please explicitly verify result.\n", __FUNCTION__, open_counter);
+            // if (open_counter > 1)
+            //     printf("%s() - [WARNING] %d concurrent sessions, please explicitly verify result.\n", __FUNCTION__, open_counter);
             break;
         case HIOCCLEARSLOT: // Invalidate and clear current slot content
             slots[i_slot] = 0;
             slots_status[i_slot] = FALSE;
             printf("%s() - Cleared slot %d\n", __FUNCTION__, i_slot);
-            if (open_counter > 1)
-                printf("%s() - [WARNING] %d concurrent sessions, please explicitly verify result.\n", __FUNCTION__, open_counter);
+            // if (open_counter > 1)
+            //     printf("%s() - [WARNING] %d concurrent sessions, please explicitly verify result.\n", __FUNCTION__, open_counter);
             break;
         case HIOCGETSLOT: // Get current slot index
             if ((ret = sys_safecopyto(endpt, grant, 0, (vir_bytes) &i_slot, sizeof(i_slot))) != OK)
@@ -204,7 +191,6 @@ static int homework_ioctl(devminor_t UNUSED(minor), unsigned long request, endpo
         default:
             break;
     }
-#endif
     return OK;
 }
 
@@ -213,11 +199,11 @@ static int sef_cb_lu_state_save(int UNUSED(state)) {
     ds_publish_u32("open_counter", open_counter, DSF_OVERWRITE);
     ds_publish_u32("initialized", initialized, DSF_OVERWRITE);
 
-#ifdef PROJECT3_ASSIGNMENT
     ds_publish_u32("i_slot", i_slot, DSF_OVERWRITE);
     ds_publish_mem("slots", slots, sizeof(slots), DSF_OVERWRITE);
     ds_publish_mem("slots_status", slots_status, sizeof(slots_status), DSF_OVERWRITE);
-#endif
+    ds_publish_mem("blocked_reads", blocked_reads, sizeof(blocked_reads), DSF_OVERWRITE);
+    ds_publish_mem("blocked_read_counts", blocked_read_counts, sizeof(blocked_read_counts), DSF_OVERWRITE);
     return OK;
 }
 
@@ -232,7 +218,6 @@ static int lu_state_restore() {
     ds_retrieve_u32("initialized", &initialized);
     ds_delete_u32("initialized");
 
-#ifdef PROJECT3_ASSIGNMENT
     ds_retrieve_u32("i_slot", &i_slot);
     ds_delete_u32("i_slot");
     size = sizeof(slots);
@@ -241,7 +226,12 @@ static int lu_state_restore() {
     size = sizeof(slots_status);
     ds_retrieve_mem("slots_status", slots_status, &size);
     ds_delete_mem("slots_status");
-#endif
+    size = sizeof(blocked_reads);
+    ds_retrieve_mem("blocked_reads", (char*)blocked_reads, &size);
+    ds_delete_mem("blocked_reads");
+    size = sizeof(blocked_read_counts);
+    ds_retrieve_mem("blocked_read_counts", (char*)blocked_read_counts, &size);
+    ds_delete_mem("blocked_read_counts");
 
     return OK;
 }
@@ -273,12 +263,17 @@ static int sef_cb_init(int type, sef_init_info_t *UNUSED(info))
 {
 /* Initialize the homework driver. */
     int do_announce_driver = TRUE;
+    int i;
 
     open_counter = 0;
     switch(type) {
         case SEF_INIT_FRESH:
             initialized = 0;
             printf("\"homework\" driver started freshly.\n");
+            for (i = 0; i < MAX_NUM_OF_SLOTS; i++)
+            {
+                blocked_read_counts[i] = 0;
+            }
         break;
 
         case SEF_INIT_LU:
@@ -291,6 +286,10 @@ static int sef_cb_init(int type, sef_init_info_t *UNUSED(info))
 
         case SEF_INIT_RESTART:
             printf("\"homework\" driver restarted.\n");
+            for (i = 0; i < MAX_NUM_OF_SLOTS; i++)
+            {
+                blocked_read_counts[i] = 0;
+            }
         break;
     }
 
@@ -316,4 +315,3 @@ int main(void)
     chardriver_task(&homework_tab);
     return OK;
 }
-
