@@ -86,12 +86,13 @@ static ssize_t homework_read(devminor_t UNUSED(minor), u64_t position,
     if (size > 4) size = 4; // upper-bounded by 4
     if (slots_status[i_slot] == FALSE) // read invalid slot, block process if request queue is not full
     {
-        if (blocked_read_counts[i_slot] >= MAX_NUM_OF_BLOCKING_CALL)
+        if (blocked_read_counts[i_slot] >= MAX_NUM_OF_BLOCKING_CALL) // read request queue full
         {
             printf("%s() - [ERROR] Slot %d is uninitialized but unable to block because driver request queue is full.\n", __FUNCTION__, i_slot);
             return EINVAL;
         }
         printf("%s() - [WARNING] Slot %d is uninitialized, blocking (endpt %d, grant %d, id %u).\n", __FUNCTION__, i_slot, endpt, grant, id);
+        // keep track of blocked read request that must be waken up later
         blocked_reads[i_slot][blocked_read_counts[i_slot]].caller = endpt;
         blocked_reads[i_slot][blocked_read_counts[i_slot]].id = id;
         blocked_reads[i_slot][blocked_read_counts[i_slot]].grant = grant;

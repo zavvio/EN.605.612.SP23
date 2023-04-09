@@ -1,17 +1,19 @@
-# EN.605.612.SP23 Operating Systems Project 2 #
-Changes made for this project is shown in  
-https://github.com/zavvio/EN.605.612.SP23/pull/2/files
+# EN.605.612.SP23 Operating Systems Project 3 #
+Changes made for this project is shown in
+https://github.com/zavvio/EN.605.612.SP23/pull/3/files
 
 ### Steps to perform before testing the "homework" device driver: ###
 - Check that device driver is available in /service/homework
 - Check that device file is available in /dev/homework, create it if not exist via command "mknod /dev/homework c 65 0"
 - Test files/scripts are located in \<repo\>/workspace
-  - Duplicated copies are available in the submitted VM's /usr/src/workspace or /root/homework/Project2
+  - Duplicated copies are available in the submitted VM's /usr/src/workspace
 - Give execution permission to all the *.sh test scripts, e.g. "chmod +x /usr/src/workspace/\*.sh"
 - Compile all \*.c tests files by executing the compile_all.sh script
 
 ### Main Test: ###
-- Run the main comprehensive test suite "regression_test", follow the console prompt to run next section of the test by pressing Enter key.
+For each test below, follow the console prompt to run next section of each test by pressing Enter key.
+- Run the basic comprehensive test suite "regression_test";
+- Also run the "test_blocking_read" which spawns various background processes to test the blocking mechanism;
 
 ### Other Customizable Tests: ###
 - try_open  
