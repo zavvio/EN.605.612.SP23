@@ -7,4 +7,4 @@ clang reader.c -o reader
 clang try_ioctl.c -o try_ioctl
 clang try_open.c -o try_open
 clang writer.c -o writer
-
+clang test_blocking_read.c -o test_blocking_read

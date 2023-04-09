@@ -37,7 +37,7 @@ main (int argc, char *argv[])
         perror ("write");
         exit (1);
     }
-    printf ("%s() - Writing %d to slot, ret = %d\n", __FUNCTION__, foo, ret);
+    printf ("[pid:%d] %s() - Writing %d to slot, ret = %d\n", getpid(), __FUNCTION__, foo, ret);
     close (fd);
     exit (0);
 }

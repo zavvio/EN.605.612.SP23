@@ -34,7 +34,7 @@ main (int argc, char *argv[])
 	{
 		perror ("ioctl");
 	}
-	printf ("%s() - Set slot to %d\n", __FUNCTION__, slot);
+	printf ("[pid:%d] %s() - Set slot to %d\n", getpid(), __FUNCTION__, slot);
 	close (fd);
 	exit (0);
 }

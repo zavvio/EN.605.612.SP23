@@ -25,7 +25,7 @@ main (int argc, char *argv[])
 		slot = atoi (argv[1]);
 	if (slot < 0 || slot > 4)
 	{
-		printf ("%s() - Bad slot %d\n", __FUNCTION__, slot);
+		printf ("[pid:%d] %s() - Bad slot %d\n", getpid(), __FUNCTION__, slot);
 		exit (1);
 	}
 	fd = open (HMWRK_DEV, O_RDWR);
@@ -40,7 +40,7 @@ main (int argc, char *argv[])
 	{
 		perror ("ioctl");
 	}
-	printf ("%s() - Slot is %d\n", __FUNCTION__, nslot);
+	printf ("[pid:%d] %s() - Slot is %d\n", getpid(), __FUNCTION__, nslot);
 	close (fd);
 	exit (0);
 }

@@ -166,36 +166,34 @@ int main(int argc, char *argv[])
     close(tmp_fd);
     printf("..... %s():%d - (%d errors so far) .....\n..... Press <ENTER> to continue testing .....\n", __FUNCTION__, __LINE__, error_count);
     getchar();
-    // Read before and after initialization (first write)
-    printf("========== Read before and after initialization (first write) ==========\n");
-    error_count += driver_read(int_size);
+    // Read after initialization (first write)
+    printf("========== Read after initialization (first write) ==========\n");
     error_count += driver_write(123, int_size);
     error_count += driver_read(int_size);
     printf("..... %s():%d - (%d errors so far) .....\n..... Press <ENTER> to continue testing .....\n", __FUNCTION__, __LINE__, error_count);
     getchar();
-    // Change slot and check value
-    printf("========== Change slot and check value ==========\n");
+    // Change slot then write and read value
+    printf("========== Change slot then write and read value ==========\n");
     error_count += driver_ioctl_getslot();
     error_count += driver_ioctl_slot(2);
+    error_count += driver_write(99999, int_size);
     error_count += driver_read(int_size);
     printf("..... %s():%d - (%d errors so far) .....\n..... Press <ENTER> to continue testing .....\n", __FUNCTION__, __LINE__, error_count);
     getchar();
     // Write value to current slot then swap back to check old slot
-    printf("========== Write value to current slot & swap back to check old slot ==========\n");
-    error_count += driver_write(99999, int_size);
-    error_count += driver_read(int_size);
+    printf("========== Swap back to check old slot ==========\n");
     error_count += driver_ioctl_slot(0);
     error_count += driver_read(int_size);
     printf("..... %s():%d - (%d errors so far) .....\n..... Press <ENTER> to continue testing .....\n", __FUNCTION__, __LINE__, error_count);
     getchar();
     // Clear slot and check both slots
-    printf("========== Clear slot and check both slots ==========\n");
-    error_count += driver_ioctl_clearslot();
-    error_count += driver_read(int_size);
-    error_count += driver_ioctl_slot(2);
-    error_count += driver_read(int_size);
-    printf("..... %s():%d - (%d errors so far) .....\n..... Press <ENTER> to continue testing .....\n", __FUNCTION__, __LINE__, error_count);
-    getchar();
+    // printf("========== Clear slot and check both slots ==========\n");
+    // error_count += driver_ioctl_clearslot();
+    // error_count += driver_read(int_size);
+    // error_count += driver_ioctl_slot(2);
+    // error_count += driver_read(int_size);
+    // printf("..... %s():%d - (%d errors so far) .....\n..... Press <ENTER> to continue testing .....\n", __FUNCTION__, __LINE__, error_count);
+    // getchar();
     // Read with various size
     printf("========== Read with various size ==========\n");
     error_count += driver_read(1);

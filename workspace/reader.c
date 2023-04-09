@@ -15,6 +15,7 @@ main (int argc, char *argv[])
     int foo;
     int ret;
     int size;
+    char errorMsg[30];
 
     fd = open (HMWRK_DEV, O_RDWR);
     if (fd < 0)
@@ -29,7 +30,8 @@ main (int argc, char *argv[])
     if ((ret = read (fd, &foo, size)) < 0)
     {
         // printf ("ret = %d\n", ret);
-        perror ("read");
+        sprintf(errorMsg, "[pid %d] read", getpid());
+        perror (errorMsg);
         exit (1);
     }
     printf ("[pid:%d] %s() - value = %d, ret = %d\n", getpid(), __FUNCTION__, foo, ret);

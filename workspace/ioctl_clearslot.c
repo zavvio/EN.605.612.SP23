@@ -25,7 +25,7 @@ main (int argc, char *argv[])
 	{
 		perror ("ioctl");
 	}
-	printf ("%s() - Cleared current slot\n", __FUNCTION__);
+	printf ("[pid:%d] %s() - Cleared current slot\n", getpid(), __FUNCTION__);
 	close (fd);
 	exit (0);
 }
