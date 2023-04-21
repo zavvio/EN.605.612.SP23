@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     static int static_main_var;
     int main_var, i;
     char *arrays[num_of_array];
-    printf("\n>>>>> Part II.a - memory addresses usage. <<<<<\n");
+    printf("\n>>>>> Part II.a - memory addresses usage. (PID: %d) <<<<<\n", getpid());
 
     printf("[0x%08X] - (stack) main_var\n", (unsigned int) &main_var);
     printf("[0x%08X] - (stack) arrays\n", (unsigned int) &arrays[0]);
@@ -57,8 +57,9 @@ int main(int argc, char *argv[])
         getmem();
         arrays[i] = (char *)malloc(array_size_100MB);
         memset(arrays[i], 0, array_size_100MB);
-        printf("[0x%08X] - allocated 100MB block number %d\n", (unsigned int) arrays[i], i+1);
-        sleep(3);
+        printf("[0x%08X] - allocated 100MB block number %d; press <Enter> to continue.\n", (unsigned int) arrays[i], i+1);
+        //sleep(3);
+        getchar();
     }
     printf("Enter endless loop, press <q> to exit\n");
     while (getchar() != 'q')
