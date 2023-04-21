@@ -12,9 +12,11 @@ https://github.com/zavvio/EN.605.612.SP23/pull/3/files
 
 ### Main Test: ###
 For each test below, follow the console prompt to run next section of each test by pressing Enter key.
+
 (For Part I)
 - Run the basic comprehensive test suite "regression_test";
 - Also run the "test_blocking_read" which spawns various background processes to test the blocking mechanism;
+
 (For Part II)
 - Run the "mem" program in either ~/mem or /usr/src/workspace/mem and follow the prompt.
 
