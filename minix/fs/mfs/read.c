@@ -134,7 +134,8 @@ int fs_readwrite(void)
    */
   if (r == OK && !rip->i_sp->s_rd_only) {
 	  if (rw_flag == READING) rip->i_update |= ATIME;
-	  if (rw_flag == WRITING) rip->i_update |= CTIME | MTIME;
+	  // if (rw_flag == WRITING) rip->i_update |= CTIME | MTIME;
+	  if (rw_flag == WRITING) rip->i_update |= MTIME;
 	  IN_MARKDIRTY(rip);		/* inode is thus now dirty */
   }
   

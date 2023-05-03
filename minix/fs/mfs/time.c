@@ -24,7 +24,8 @@ int fs_utime()
   r = OK;
   if(read_only(rip) != OK) r = EROFS;	/* not even su can touch if R/O */
   if(r == OK) {
-	rip->i_update = CTIME; /* discard any stale ATIME and MTIME flags */
+	// rip->i_update = CTIME; /* discard any stale ATIME and MTIME flags */
+	rip->i_update = MTIME;
 	switch(fs_m_in.m_vfs_fs_utime.acnsec) {
 	case UTIME_NOW:
 		rip->i_update |= ATIME;
