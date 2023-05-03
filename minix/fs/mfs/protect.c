@@ -29,7 +29,8 @@ int fs_chmod()
 
   /* Now make the change. Clear setgid bit if file is not in caller's grp */
   rip->i_mode = (rip->i_mode & ~ALL_MODES) | (mode & ALL_MODES);
-  rip->i_update |= CTIME;
+  // rip->i_update |= CTIME;
+  rip->i_update |= MTIME;
   IN_MARKDIRTY(rip);
 
   /* Return full new mode to caller. */
@@ -58,7 +59,8 @@ int fs_chown()
 	  rip->i_uid = fs_m_in.m_vfs_fs_chown.uid;
 	  rip->i_gid = fs_m_in.m_vfs_fs_chown.gid;
 	  rip->i_mode &= ~(I_SET_UID_BIT | I_SET_GID_BIT);
-	  rip->i_update |= CTIME;
+	  // rip->i_update |= CTIME;
+	  rip->i_update |= MTIME;
           IN_MARKDIRTY(rip);
   }
 

@@ -562,7 +562,8 @@ int check_permissions;		 /* check permissions when flag is !IS_EMPTY */
 				*((ino_t *) &dp->mfs_d_name[t]) = dp->mfs_d_ino;
 				dp->mfs_d_ino = NO_ENTRY;	/* erase entry */
 				MARKDIRTY(bp);
-				ldir_ptr->i_update |= CTIME | MTIME;
+				// ldir_ptr->i_update |= CTIME | MTIME;
+				ldir_ptr->i_update |= MTIME;
 				IN_MARKDIRTY(ldir_ptr);
 				if (pos < ldir_ptr->i_last_dpos)
 					ldir_ptr->i_last_dpos = pos;
@@ -618,7 +619,8 @@ int check_permissions;		 /* check permissions when flag is !IS_EMPTY */
   dp->mfs_d_ino = conv4(sp->s_native, (int) *numb);
   MARKDIRTY(bp);
   put_block(bp, DIRECTORY_BLOCK);
-  ldir_ptr->i_update |= CTIME | MTIME;	/* mark mtime for update later */
+  // ldir_ptr->i_update |= CTIME | MTIME;	/* mark mtime for update later */
+  ldir_ptr->i_update |= MTIME;	/* mark mtime for update later */
   IN_MARKDIRTY(ldir_ptr);
   if (new_slots > old_slots) {
 	ldir_ptr->i_size = (off_t) new_slots * DIR_ENTRY_SIZE;

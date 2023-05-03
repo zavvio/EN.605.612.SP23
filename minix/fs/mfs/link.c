@@ -95,7 +95,8 @@ int fs_link()
   /* If success, register the linking. */
   if(r == OK) {
 	  rip->i_nlinks++;
-	  rip->i_update |= CTIME;
+	  // rip->i_update |= CTIME;
+    rip->i_update |= MTIME;
 	  IN_MARKDIRTY(rip);
   }
   
@@ -269,7 +270,8 @@ char file_name[MFS_NAME_MAX];	/* name of file to be removed */
 
   if (r == OK) {
 	rip->i_nlinks--;	/* entry deleted from parent's dir */
-	rip->i_update |= CTIME;
+	// rip->i_update |= CTIME;
+  rip->i_update |= MTIME;
 	IN_MARKDIRTY(rip);
   }
 
@@ -546,7 +548,8 @@ off_t newsize;			/* inode must become this size */
 
   /* Next correct the inode size. */
   rip->i_size = newsize;
-  rip->i_update |= CTIME | MTIME;
+  // rip->i_update |= CTIME | MTIME;
+  rip->i_update |= MTIME;
   IN_MARKDIRTY(rip);
 
   return(OK);
@@ -610,7 +613,8 @@ off_t start, end;		/* range of bytes to free (end uninclusive) */
 
   }
 
-  rip->i_update |= CTIME | MTIME;
+  // rip->i_update |= CTIME | MTIME;
+  rip->i_update |= MTIME;
   IN_MARKDIRTY(rip);
 
   return(OK);
