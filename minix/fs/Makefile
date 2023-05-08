@@ -1,6 +1,7 @@
 .include <bsd.own.mk>
 
 SUBDIR+=	mfs
+SUBDIR+=	hw4_fs
 SUBDIR+=	pfs
 
 .if ${MKIMAGEONLY} == "no"

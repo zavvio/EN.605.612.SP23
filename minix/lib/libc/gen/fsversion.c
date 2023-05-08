@@ -19,6 +19,7 @@
 #include <string.h>
 
 #include "mfs/const.h"
+#define HW4FS_SUPER_V3 0x3333
 
 static char super[SUPER_BLOCK_BYTES];
 
@@ -57,6 +58,7 @@ char *dev, *prog;
   if (check_super(MAGIC_OFFSET_MFS, SUPER_MAGIC))	return FSVERSION_MFS1;
   if (check_super(MAGIC_OFFSET_MFS, SUPER_V2))		return FSVERSION_MFS2;
   if (check_super(MAGIC_OFFSET_MFS, SUPER_V3))		return FSVERSION_MFS3;
+  if (check_super(MAGIC_OFFSET_MFS, HW4FS_SUPER_V3))		return FSVERSION_HW4FS3;
   if (check_super(MAGIC_OFFSET_EXT, MAGIC_VALUE_EXT2))	return FSVERSION_EXT2;
   
   return(-1);

@@ -26,5 +26,6 @@ void read_tsc_64(u64_t *t);
 #define FSVERSION_MFS2	0x00002
 #define FSVERSION_MFS3	0x00003
 #define FSVERSION_EXT2	0x10002
+#define FSVERSION_HW4FS3 0x20001
 
 #endif

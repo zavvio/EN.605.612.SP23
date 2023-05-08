@@ -11,6 +11,7 @@
 #include <fstab.h>
 
 #define MINIX_FS_TYPE "mfs"
+#define HW4_FS_TYPE "hw4_fs"
 
 int main(int argc, char **argv);
 void list(void);
@@ -65,13 +66,14 @@ char *argv[];
   device = argv[1];
   if (!strcmp(device, "none")) device = NULL;
 
-  if ((type == NULL || !strcmp(type, MINIX_FS_TYPE)) && device != NULL) {
+  if ((type == NULL || !strcmp(type, MINIX_FS_TYPE) || !strcmp(type, HW4_FS_TYPE)) && device != NULL) {
 	/* auto-detect type and/or version */
 	v = fsversion(device, "mount");
 	switch (v) {
 		case FSVERSION_MFS1:
 		case FSVERSION_MFS2: 
-		case FSVERSION_MFS3: type = MINIX_FS_TYPE; break;		
+		case FSVERSION_MFS3: type = MINIX_FS_TYPE; break;	
+		case FSVERSION_HW4FS3: type = HW4_FS_TYPE; break;		
 		case FSVERSION_EXT2: type = "ext2"; break;
 	}
   }
