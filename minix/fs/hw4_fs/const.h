@@ -29,7 +29,7 @@
 #define SUPER_REV     0x7F13	/* magic # when 68000 disk read on PC or vv */
 #define SUPER_V2      0x2468	/* magic # for V2 file systems */
 #define SUPER_V2_REV  0x6824	/* V2 magic written on PC, read on 68K or vv */
-#define SUPER_V3      0x4d5a	/* magic # for V3 file systems */
+#define SUPER_V3      0x3333	/* magic # for V3 file systems */
 
 #define V2		   2	/* version number of V2 file systems */ 
 #define V3		   3	/* version number of V3 file systems */ 

@@ -15,7 +15,7 @@
 #define usizeof(t) ((unsigned) sizeof(t))
 
 /* File system types: magic number contained in super-block. */
-#define SUPER_V3      0x4d5a	/* magic # for V3 file systems */
+#define SUPER_V3      0x3333	/* magic # for V3 file systems */
 #define SUPER_MAGIC	SUPER_V3
 
 /* Miscellaneous constants */

@@ -1,5 +1,5 @@
-# Makefile for Minix File System (MFS)
-PROG=	mfs
+# Makefile for HW4 File System (HW4FS)
+PROG=	hw4_fs
 SRCS=	cache.c link.c \
 	mount.c misc.c open.c protect.c read.c \
 	stadir.c stats.c table.c time.c utility.c \
